@@ -55,8 +55,8 @@ TEST_F(Assets_Mesh, invalid_mesh_properties) {
     EXPECT_EQ(nullptr, invalid_mesh.get_texcoords());
     EXPECT_EQ(nullptr, invalid_mesh.get_tint_and_roughness());
     Math::AABB bounds = invalid_mesh.get_bounds();
-    EXPECT_TRUE(isnan(bounds.minimum.x) && isnan(bounds.minimum.y) && isnan(bounds.minimum.z) &&
-                isnan(bounds.maximum.x) && isnan(bounds.maximum.y) && isnan(bounds.maximum.z));
+    EXPECT_TRUE(std::isnan(bounds.minimum.x) && std::isnan(bounds.minimum.y) && std::isnan(bounds.minimum.z) &&
+                std::isnan(bounds.maximum.x) && std::isnan(bounds.maximum.y) && std::isnan(bounds.maximum.z));
 }
 
 TEST_F(Assets_Mesh, create) {

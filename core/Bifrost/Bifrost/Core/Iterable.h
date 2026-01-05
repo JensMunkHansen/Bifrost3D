@@ -9,6 +9,8 @@
 #ifndef _BIFROST_CORE_ITERABLE_H_
 #define _BIFROST_CORE_ITERABLE_H_
 
+#include <cstddef>
+
 namespace Bifrost {
 namespace Core {
 

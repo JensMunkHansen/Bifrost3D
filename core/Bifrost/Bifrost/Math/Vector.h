@@ -11,6 +11,7 @@
 
 #include <Bifrost/Core/Defines.h>
 
+#include <cmath>
 #include <cstring>
 #include <sstream>
 
@@ -20,7 +21,7 @@ namespace Math {
 template <typename T>
 struct Vector2 final {
 public:
-    template <typename T> using Vector = Vector2;
+    template <typename U> using Vector = Vector2<U>;
     typedef T value_type;
     static const int N = 2;
 
@@ -56,7 +57,7 @@ public:
 template <typename T>
 struct Vector3 final {
 public:
-    template <typename T> using Vector = Vector3;
+    template <typename U> using Vector = Vector3<U>;
     typedef T value_type;
     static const int N = 3;
 
@@ -98,7 +99,7 @@ public:
 template <typename T>
 struct Vector4 final {
 public:
-    template <typename T> using Vector = Vector4;
+    template <typename U> using Vector = Vector4<U>;
     typedef T value_type;
     static const int N = 4;
 
@@ -229,6 +230,8 @@ __always_inline__ Vector4<T> max(Vector4<T> lhs, Vector4<T> rhs) {
 }
 
 // Comparison that checks if two vectors are almost equal.
+// NOTE: Scalar almost_equal(float, float) is defined in Utils.h, which includes
+// Vector.h after defining it, ensuring it's visible here via two-phase lookup.
 template<typename T>
 __always_inline__ bool almost_equal(Vector2<T> lhs, Vector2<T> rhs, unsigned short max_ulps = 4) {
     return almost_equal(lhs.x, rhs.x, max_ulps)

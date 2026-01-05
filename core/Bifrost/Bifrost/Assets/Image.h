@@ -155,7 +155,7 @@ public:
     static void iterate_pixels(ImageID image_ID, Operation pixel_operation) {
         int pixel_count = get_pixel_count(image_ID);
         for (int i = 0; i < pixel_count; ++i) {
-            RGBA pixel = get_pixel(image_ID, i);
+            Math::RGBA pixel = get_pixel(image_ID, i);
             pixel_operation(pixel);
         }
     }

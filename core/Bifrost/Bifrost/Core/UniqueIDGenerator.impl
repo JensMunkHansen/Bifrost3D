@@ -7,6 +7,7 @@
 // -----------------------------------------------------------------------------
 
 #include <assert.h>
+#include <cstring>
 
 namespace Bifrost {
 namespace Core {

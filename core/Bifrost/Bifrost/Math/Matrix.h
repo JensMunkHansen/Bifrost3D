@@ -27,12 +27,11 @@ namespace Math {
 template <int R, int C, typename T>
 struct Matrix final {
 public:
-    typedef typename T T;
-    typedef typename T value_type;
+    using value_type = T;
     static const int ROW_COUNT = R;
     static const int COLUMN_COUNT = C;
     static const int N = ROW_COUNT * COLUMN_COUNT;
-    typedef typename Matrix<R, C, T> MatrixType;
+    using MatrixType = Matrix<R, C, T>;
     using RowType = typename std::conditional<COLUMN_COUNT == 4, Vector4<T>,
         typename std::conditional<COLUMN_COUNT == 3, Vector3<T>,
         typename std::conditional<COLUMN_COUNT == 2, Vector2<T>,
@@ -319,9 +318,11 @@ inline Matrix<C, R, T> transpose(Matrix<R, C, T> v) {
     return res;
 }
 
-template <int R, int C, typename T, typename = Matrix<R, C, T>::RowType, typename = Matrix<R, C, T>::ColumnType>
+// Vector * Matrix multiplication (row vector * matrix)
+// R, C, T are deduced from the Matrix parameter; ColumnType is then substituted.
+template <int R, int C, typename T>
 inline typename Matrix<R, C, T>::RowType operator*(typename Matrix<R, C, T>::ColumnType lhs, Matrix<R, C, T> rhs) {
-    Matrix<R, C, T>::RowType res;
+    typename Matrix<R, C, T>::RowType res;
     for (int c = 0; c < C; ++c)
         res[c] = dot(lhs, rhs.get_column(c));
     return res;

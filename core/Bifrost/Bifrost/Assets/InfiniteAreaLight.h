@@ -15,6 +15,7 @@
 #include <Bifrost/Math/Quaternion.h>
 #include <Bifrost/Math/RNG.h>
 
+#include <cmath>
 #include <memory>
 
 namespace Bifrost::Assets {
@@ -94,14 +95,14 @@ public:
         sample.direction_to_light = Math::latlong_texcoord_to_direction(CDF_sample.index);
         sample.distance = 1e30f;
         sample.radiance = sample2D(m_latlong, CDF_sample.index).rgb();
-        float sin_theta = abs(sqrtf(1.0f - sample.direction_to_light.y * sample.direction_to_light.y));
+        float sin_theta = std::abs(sqrtf(1.0f - sample.direction_to_light.y * sample.direction_to_light.y));
         float PDF = float(CDF_sample.PDF) / (2.0f * Math::PI<float>() * Math::PI<float>() * sin_theta);
         sample.PDF = sin_theta == 0.0f ? 0.0f : PDF;
         return sample;
     }
 
     float PDF(Math::Vector3f direction_to_light) const {
-        float sin_theta = abs(sqrtf(1.0f - direction_to_light.y * direction_to_light.y));
+        float sin_theta = std::abs(sqrtf(1.0f - direction_to_light.y * direction_to_light.y));
         Math::Vector2f uv = Math::direction_to_latlong_texcoord(direction_to_light);
         uv.y = Math::min(uv.y, Math::nearly_one);
         float distribution_PDF = float(m_distribution.PDF_continuous(uv));
@@ -196,10 +197,10 @@ inline void convolute(const InfiniteAreaLight& light, IBLConvolution<T>* begin, 
                 if (sample.PDF < 0.000000001f)
                     continue;
 
-                float cos_theta = fmaxf(dot(sample.direction_to_light, up_vector), 0.0f);
+                float cos_theta = std::fmax(dot(sample.direction_to_light, up_vector), 0.0f);
                 float ggx_f = GGX::D(alpha, cos_theta);
                 float ggx_PDF = ggx_f * cos_theta; // Inlined GGX::PDF(alpha, cos_theta);
-                if (isnan(ggx_f))
+                if (std::isnan(ggx_f))
                     continue;
 
                 float mis_weight = RNG::power_heuristic(sample.PDF, ggx_PDF);

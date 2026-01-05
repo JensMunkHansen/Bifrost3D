@@ -13,6 +13,8 @@
 #include <Bifrost/Math/MortonEncode.h>
 #include <Bifrost/Math/Vector.h>
 
+#include <cmath>
+
 namespace Bifrost {
 namespace Math {
 namespace RNG {
@@ -83,7 +85,7 @@ __always_inline__ float power_heuristic(float pdf1, float pdf2) {
     // 1. pdf1 is so insanely high that pdf1 * pdf1 = infinity. In that case we end up with inf / (inf + pdf2^2) and return 1, unless pdf2 was larger than pdf1, i.e. 'more infinite :p', then we return 0.
     // 2. Conversely pdf2 can also be so insanely high that pdf2 * pdf2 = infinity. This is handled analogously to above.
     // 3. pdf2 can also be NaN. In this case the power heuristic is ill-defined and we return 0.
-    return !isnan(result) ? result : (pdf1 > pdf2 ? 1.0f : 0.0f);
+    return !std::isnan(result) ? result : (pdf1 > pdf2 ? 1.0f : 0.0f);
 }
 
 // ------------------------------------------------------------------------------------------------

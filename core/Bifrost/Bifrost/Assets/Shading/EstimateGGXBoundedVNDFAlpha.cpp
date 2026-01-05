@@ -12,6 +12,8 @@
 #include <Bifrost/Assets/Shading/Fittings.h>
 #include <Bifrost/Math/ImageSampling.h>
 
+#include <cmath>
+
 namespace Bifrost::Assets::Shading::Estimate_GGX_bounded_VNDF_alpha {
 
 const int alpha_sample_count = 1024;
@@ -88,7 +90,7 @@ const float alphas[] = {
 float encode_PDF(float pdf) {
     float non_linear_PDF = pdf / (1.0f + pdf);
     float encoded_PDF = (non_linear_PDF - 0.13f) / 0.87f;
-    if (isnan(encoded_PDF))
+    if (std::isnan(encoded_PDF))
         encoded_PDF = 1.0f;
     return encoded_PDF;
 }

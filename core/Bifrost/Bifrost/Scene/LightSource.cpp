@@ -103,7 +103,7 @@ LightSourceID LightSources::create_spot_light(SceneNodeID node_ID, Math::RGB pow
     light.type = LightSources::Type::Spot;
     light.color = power;
     light.spot.radius = half(radius);
-    light.spot.cos_angle = unsigned short(cos_angle * USHRT_MAX + 0.5f);
+    light.spot.cos_angle = static_cast<unsigned short>(cos_angle * USHRT_MAX + 0.5f);
 
     return create_light(node_ID, light);
 }
@@ -173,7 +173,7 @@ void LightSources::set_spot_light_radius(LightSourceID light_ID, float radius) {
     flag_as_updated(light_ID);
 }
 void LightSources::set_spot_light_cos_angle(LightSourceID light_ID, float cos_angle) {
-    m_lights[light_ID].spot.cos_angle = unsigned short(cos_angle * USHRT_MAX + 0.5f);
+    m_lights[light_ID].spot.cos_angle = static_cast<unsigned short>(cos_angle * USHRT_MAX + 0.5f);
     flag_as_updated(light_ID);
 }
 

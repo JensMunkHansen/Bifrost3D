@@ -1,7 +1,7 @@
 add_library(glTFLoader
   glTFLoader/json.hpp
-  glTFLoader/GLTFLoader.h
-  glTFLoader/GLTFLoader.cpp
+  glTFLoader/glTFLoader.h
+  glTFLoader/glTFLoader.cpp
   glTFLoader/tiny_gltf.h
 )
 

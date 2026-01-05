@@ -255,7 +255,7 @@ template <typename RandomAccessIterator>
 typename std::iterator_traits<RandomAccessIterator>::value_type* 
     expand_indexed_buffer(Math::Vector3ui* primitives, int primitive_count, RandomAccessIterator buffer) {
 
-    auto expanded_buffer = new std::iterator_traits<RandomAccessIterator>::value_type[primitive_count * 3];
+    auto expanded_buffer = new typename std::iterator_traits<RandomAccessIterator>::value_type[primitive_count * 3];
     expand_indexed_buffer(primitives, primitive_count, buffer, expanded_buffer);
     return expanded_buffer;
 };

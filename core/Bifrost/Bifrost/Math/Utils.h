@@ -11,16 +11,18 @@
 
 #include <Bifrost/Core/Defines.h>
 #include <Bifrost/Math/Constants.h>
-#include <Bifrost/Math/Vector.h>
 
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 
 namespace Bifrost {
 namespace Math {
 
 // ------------------------------------------------------------------------------------------------
 // Floating point precision helpers.
+// NOTE: These are defined before including Vector.h so that Vector's almost_equal
+//       templates can use the scalar version via two-phase lookup.
 // ------------------------------------------------------------------------------------------------
 
 inline int compute_ulps(float a, float b) {
@@ -73,6 +75,16 @@ __always_inline__ float next_float(float v) {
     return v;
 }
 
+} // NS Math
+} // NS Bifrost
+
+// Include Vector.h after scalar almost_equal is defined, so Vector's almost_equal
+// templates can find it during two-phase lookup.
+#include <Bifrost/Math/Vector.h>
+
+namespace Bifrost {
+namespace Math {
+
 // ------------------------------------------------------------------------------------------------
 // Trigonometry.
 // ------------------------------------------------------------------------------------------------
@@ -99,7 +111,7 @@ __always_inline__ unsigned int ceil_divide(unsigned int a, unsigned int b) {
 }
 
 __always_inline__ float non_zero_sign(float v) {
-    return signbit(v) ? -1.0f : 1.0f;
+    return std::signbit(v) ? -1.0f : 1.0f;
 }
 
 template <typename T>
@@ -273,7 +285,7 @@ inline void fill_bilinear_gaussian_samples(float std_dev, Tap* samples_begin, Ta
 
         float weight = w1 + w2;
         float offset = (t1 * w1 + t2 * w2) / weight;
-        if (isnan(offset)) offset = float(t1);
+        if (std::isnan(offset)) offset = float(t1);
 
         samples_begin[s] = { offset, weight };
 

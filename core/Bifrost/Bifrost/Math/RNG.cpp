@@ -22,7 +22,7 @@ namespace RNG {
 // The nearest neighbour search is implemented by searching nearby strata for their random samples.
 // ------------------------------------------------------------------------------------------------
 void fill_progressive_multijittered_bluenoise_samples(Vector2f* samples_begin, Vector2f* samples_end, unsigned int blue_noise_samples) {
-    unsigned int total_sample_count = unsigned int(samples_end - samples_begin);
+    unsigned int total_sample_count = static_cast<unsigned int>(samples_end - samples_begin);
     assert(is_power_of_two(total_sample_count));
 
     auto rng = RNG::LinearCongruential(19349669);
@@ -116,7 +116,7 @@ void fill_progressive_multijittered_bluenoise_samples(Vector2f* samples_begin, V
         for (unsigned int s = 0; s < prev_sample_count; ++s) {
             int xstratum = int(next_sample_count * samples_begin[s].x);
             int ystratum = int(next_sample_count * samples_begin[s].y);
-            stratum_samples_x[xstratum] = stratum_samples_y[ystratum] = unsigned short(s);
+            stratum_samples_x[xstratum] = stratum_samples_y[ystratum] = static_cast<unsigned short>(s);
         }
     };
 
@@ -149,7 +149,7 @@ void fill_progressive_multijittered_bluenoise_samples(Vector2f* samples_begin, V
         mark_occupied_strata(prev_sample_count);
 
         // Loop over the first half of the samples, the ones used in extend_sequence_even as well,
-        // and generate 2 new samples for each – one at a time to keep the order consecutive (for "greedy" best candidates)
+        // and generate 2 new samples for each ï¿½ one at a time to keep the order consecutive (for "greedy" best candidates)
 
         // Select one of the two remaining subquadrants
         for (unsigned int s = 0; s < prev_sample_count / 2; ++s) {

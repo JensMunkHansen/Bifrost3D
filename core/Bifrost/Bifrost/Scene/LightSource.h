@@ -14,7 +14,7 @@
 #include <Bifrost/Core/Iterable.h>
 #include <Bifrost/Core/UniqueIDGenerator.h>
 #include <Bifrost/Math/Color.h>
-#include <Bifrost/Math/Half.h>
+#include <Bifrost/Math/half.h>
 #include <Bifrost/Scene/SceneNode.h>
 
 namespace Bifrost {

@@ -12,6 +12,7 @@
 #include <Bifrost/Core/Defines.h>
 #include <Bifrost/Math/FixedPointTypes.h>
 
+#include <cmath>
 #include <sstream>
 #include <string>
 

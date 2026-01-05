@@ -11,6 +11,8 @@
 
 #include <Bifrost/Core/Iterable.h>
 
+#include <algorithm>
+#include <cstring>
 #include <vector>
 
 namespace Bifrost {
@@ -45,7 +47,7 @@ public:
 
     void resize(int new_size) {
         Bitmask* new_changes = new Bitmask[new_size];
-        int copyable_elements = min(new_size, m_size);
+        int copyable_elements = std::min(new_size, m_size);
         std::copy(m_changes, m_changes + copyable_elements, new_changes);
         delete[] m_changes;
         m_changes = new_changes;

@@ -13,6 +13,7 @@
 #define __always_inline__ __forceinline
 #else
 #define __always_inline__ inline
+#define __forceinline inline
 #endif
 
 namespace Bifrost {

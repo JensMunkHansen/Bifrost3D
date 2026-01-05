@@ -164,7 +164,7 @@ TEST_F(Assets_Images, create_and_clear) {
             RGBA pixel0 = image.get_pixel(Vector2ui(2, 2), 0);
             RGBA pixel1 = image.get_pixel(Vector2ui(1, 1), 1);
             for (int c = 0; c < 4; c++)
-                if (!isnan(test_color[c])) {
+                if (!std::isnan(test_color[c])) {
                     EXPECT_FLOAT_EQ(test_color[c], pixel0[c]) << "pixel format " << int(format);
                     EXPECT_FLOAT_EQ(test_color[c], pixel1[c]) << "pixel format " << int(format);
                 }

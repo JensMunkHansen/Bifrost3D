@@ -12,6 +12,7 @@
 #include <Bifrost/Math/Conversions.h>
 
 #include <assert.h>
+#include <climits>
 
 using namespace Bifrost::Math;
 

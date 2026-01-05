@@ -7,6 +7,7 @@
 // ---------------------------------------------------------------------------
 
 #include <Bifrost/Assets/Material.h>
+#include <Bifrost/Core/Defines.h>
 
 #include <assert.h>
 

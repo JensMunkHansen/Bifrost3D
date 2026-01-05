@@ -107,10 +107,13 @@ SOURCE_GROUP("Utils" FILES ${UTILS_SRCS})
 
 target_include_directories(Bifrost PUBLIC .)
 
-set_target_properties(Bifrost PROPERTIES 
+set_target_properties(Bifrost PROPERTIES
   LINKER_LANGUAGE CXX
   FOLDER "Core"
-  COMPILE_FLAGS "-W3"
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /fp:fast")
+if (MSVC)
+  target_compile_options(Bifrost PRIVATE /W3 /fp:fast)
+else()
+  target_compile_options(Bifrost PRIVATE -Wall -ffast-math)
+endif()
