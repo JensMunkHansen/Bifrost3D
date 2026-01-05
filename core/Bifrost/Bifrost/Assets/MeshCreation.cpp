@@ -10,6 +10,7 @@
 #include <Bifrost/Core/Array.h>
 #include <Bifrost/Math/Constants.h>
 #include <Bifrost/Math/Matrix.h>
+#include <Bifrost/Math/SIMDTrig.h>
 #include <Bifrost/Math/Vector.h>
 #include <Bifrost/Math/Utils.h>
 
@@ -232,7 +233,9 @@ Mesh cylinder(unsigned int vertical_quads, unsigned int circumference_quads, Mes
         positions[0] = Vector3f(0.0f, radius, 0.0f);
         for (unsigned int v = 0; v < circumference_quads; ++v) {
             float radians = v / float(circumference_quads) * 2.0f * Math::PI<float>();
-            positions[v + 1] = Vector3f(cos(radians) * radius, radius, sin(radians) * radius);
+            float s, c;
+            SIMD::sincosf(radians, &s, &c);
+            positions[v + 1] = Vector3f(c * radius, radius, s * radius);
         }
 
         // Mirror top to create bottom positions.
@@ -322,10 +325,12 @@ Mesh cylinder(unsigned int vertical_quads, unsigned int circumference_quads, Mes
 }
 
 static Vector3f spherical_to_direction(float theta, float phi) {
-    float sinTheta = sin(theta);
-    float z = sinTheta * cos(phi);
-    float x = -sinTheta * sin(phi);
-    float y = cos(theta);
+    float sinTheta, cosTheta, sinPhi, cosPhi;
+    SIMD::sincosf(theta, &sinTheta, &cosTheta);
+    SIMD::sincosf(phi, &sinPhi, &cosPhi);
+    float z = sinTheta * cosPhi;
+    float x = -sinTheta * sinPhi;
+    float y = cosTheta;
     return Vector3f(x, y, z);
 }
 
@@ -425,7 +430,9 @@ Mesh torus(unsigned int revolution_quads, unsigned int circumference_quads, floa
     Core::Array<Vector3f> local_normal_dirs(circumference_vertex_count);
     for (unsigned int x = 0; x < circumference_vertex_count-1; ++x) {
         float minor_radians = x / float(circumference_quads) * 2.0f * Math::PI<float>();
-        local_normal_dirs[x] = Vector3f(cos(minor_radians), 0.0, sin(minor_radians));
+        float s, c;
+        SIMD::sincosf(minor_radians, &s, &c);
+        local_normal_dirs[x] = Vector3f(c, 0.0f, s);
     }
     local_normal_dirs[circumference_vertex_count - 1] = local_normal_dirs[0];
 
@@ -434,9 +441,11 @@ Mesh torus(unsigned int revolution_quads, unsigned int circumference_quads, floa
     for (unsigned int z = 0; z < revolution_vertex_count; ++z) {
         // Create local coordinate system on the torus.
         float major_radians = z / float(revolution_quads) * 2.0f * Math::PI<float>();
-        Vector3f center = Vector3f(cos(major_radians) * major_radius, 0.0, sin(major_radians) * major_radius);
+        float s, c;
+        SIMD::sincosf(major_radians, &s, &c);
+        Vector3f center = Vector3f(c * major_radius, 0.0f, s * major_radius);
         if (z == 0 || z == revolution_vertex_count - 1)
-            center = Vector3f(major_radius, 0.0, 0.0f);
+            center = Vector3f(major_radius, 0.0f, 0.0f);
 
         Vector3f outward = normalize(center);
         Vector3f up = Vector3f::up();

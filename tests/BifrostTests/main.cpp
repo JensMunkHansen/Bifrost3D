@@ -28,6 +28,7 @@
 #include <Math/ImageSamplingTest.h>
 #include <Math/LineTest.h>
 #include <Math/MatrixTest.h>
+#include <Math/SIMDMatrixTest.h>
 #include <Math/OctahedralNormalTest.h>
 #include <Math/QuaternionTest.h>
 #include <Math/StatisticsTest.h>

@@ -11,6 +11,7 @@
 
 #include <Bifrost/Core/Defines.h>
 #include <Bifrost/Math/Constants.h>
+#include <Bifrost/Math/SIMDTrig.h>
 #include <Bifrost/Math/Utils.h>
 #include <Bifrost/Math/Vector.h>
 
@@ -70,10 +71,10 @@ public:
     // http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/
     static __always_inline__ Quaternion<T> from_angle_axis(T angle_in_radians, Vector3<T> axis) {
         T radian_halved = angle_in_radians * T(0.5);
-        T sin_angle = sin(radian_halved);
-        Vector3<T> imaginary = axis * sin_angle;
-        T real = cos(radian_halved);
-        return Quaternion<T>(imaginary, real);
+        float sin_angle, cos_angle;
+        SIMD::sincosf(radian_halved, &sin_angle, &cos_angle);
+        Vector3<T> imaginary = axis * T(sin_angle);
+        return Quaternion<T>(imaginary, T(cos_angle));
     }
 
     // Create a quaternion with forward pointing along direction and that has the upvector up.

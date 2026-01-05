@@ -15,6 +15,7 @@
 #include <Bifrost/Math/RNG.h>
 #include <Bifrost/Math/Distribution1D.h>
 #include <Bifrost/Math/Distribution2D.h>
+#include <Bifrost/Math/SIMDTrig.h>
 #include <Bifrost/Assets/MeshCreation.h>
 #include <Bifrost/Assets/Mesh.h>
 #include <Bifrost/Scene/SceneNode.h>
@@ -191,6 +192,41 @@ void benchmark_rng_operations() {
 }
 
 // ---------------------------------------------------------------------------
+// SIMD Trigonometry
+// ---------------------------------------------------------------------------
+void benchmark_simd_trig_operations() {
+    std::cout << "\n=== SIMD Trigonometry ===" << std::endl;
+    print_header();
+
+    RNG::LinearCongruential rng(12345);
+    float angle = rng.sample1f() * Math::PI<float>() * 2.0f;
+    volatile float sink_s, sink_c;
+
+    BENCHMARK("std::sin + std::cos (scalar)", {
+        float s = std::sin(angle);
+        float c = std::cos(angle);
+        do_not_optimize(s);
+        do_not_optimize(c);
+    });
+
+    float out_s, out_c;
+    BENCHMARK("SIMD::sincosf (scalar wrapper)", {
+        Math::SIMD::sincosf(angle, &out_s, &out_c);
+        do_not_optimize(out_s);
+        do_not_optimize(out_c);
+    });
+
+    __m128 angles4 = _mm_set_ps(angle, angle * 0.5f, angle * 0.25f, angle * 0.125f);
+    __m128 out_s4, out_c4;
+
+    BENCHMARK("SIMD::sincos_ps (4 floats)", {
+        Math::SIMD::sincos_ps(angles4, &out_s4, &out_c4);
+        do_not_optimize(out_s4);
+        do_not_optimize(out_c4);
+    });
+}
+
+// ---------------------------------------------------------------------------
 // Distribution sampling
 // ---------------------------------------------------------------------------
 void benchmark_distribution_operations() {
@@ -311,6 +347,7 @@ int main(int argc, char* argv[]) {
     benchmark_quaternion_operations();
     benchmark_transform_operations();
     benchmark_rng_operations();
+    benchmark_simd_trig_operations();
     benchmark_distribution_operations();
     benchmark_mesh_operations();
     benchmark_scene_operations();
