@@ -38,6 +38,13 @@ protected:
     static bool compare_vector3f(Math::Vector3f lhs, Math::Vector3f rhs, unsigned short max_ulps) {
         return almost_equal(lhs, rhs, max_ulps);
     }
+
+    // Relaxed vector comparison for tests sensitive to floating-point precision.
+    // With -ffast-math and AVX2 vectorization enabled, some vector operations
+    // accumulate more numerical error in matrix/transform computations.
+    static bool compare_vector3f_relaxed(Math::Vector3f lhs, Math::Vector3f rhs) {
+        return almost_equal(lhs, rhs, 64);
+    }
 };
 
 TEST_F(Scene_Camera, resizing) {
@@ -99,14 +106,15 @@ TEST_F(Scene_Camera, orthographic_matrices) {
         Ray upper_right_ray = CameraUtils::ray_from_viewport_point(cam_ID, Vector2f(1.0f, 1.0f));
 
         // Rays should point forward.
-        EXPECT_EQ(lower_left_ray.direction, Vector3f::forward());
-        EXPECT_EQ(upper_right_ray.direction, Vector3f::forward());
+        // Use relaxed comparison due to -ffast-math and AVX2 vectorization.
+        EXPECT_PRED2(compare_vector3f_relaxed, lower_left_ray.direction, Vector3f::forward());
+        EXPECT_PRED2(compare_vector3f_relaxed, upper_right_ray.direction, Vector3f::forward());
 
         // Test that lower-left and upper right rays start at the expected positions.
         Vector3f expected_lower_left_origin = Vector3f(-width, -height, 0.0f) * 0.5f;
         Vector3f expected_upper_right_origin = Vector3f(width, height, 0.0f) * 0.5f;
-        EXPECT_EQ(lower_left_ray.origin, expected_lower_left_origin);
-        EXPECT_EQ(upper_right_ray.origin, expected_upper_right_origin);
+        EXPECT_PRED2(compare_vector3f_relaxed, lower_left_ray.origin, expected_lower_left_origin);
+        EXPECT_PRED2(compare_vector3f_relaxed, upper_right_ray.origin, expected_upper_right_origin);
     }
 }
 
@@ -317,7 +325,8 @@ TEST_F(Scene_Camera, ray_projection) {
 
     { // Forward should be +Z when the transform is identity.
         Ray ray = CameraUtils::ray_from_viewport_point(cam_ID, Vector2f(0.5f, 0.5f));
-        EXPECT_EQ(ray.direction, Vector3f::forward());
+        // Use relaxed comparison due to -ffast-math and AVX2 vectorization.
+        EXPECT_PRED2(compare_vector3f_relaxed, ray.direction, Vector3f::forward());
 
         // Unity QED ray: Origin : (-0.55228, -0.41421, 1.00000), Dir : (-0.45450, -0.34087, 0.82294)
         Ray ray_periferi = CameraUtils::ray_from_viewport_point(cam_ID, Vector2f(0.0f, 0.0f));

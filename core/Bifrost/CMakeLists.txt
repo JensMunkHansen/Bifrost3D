@@ -113,7 +113,7 @@ set_target_properties(Bifrost PROPERTIES
 )
 
 if (MSVC)
-  target_compile_options(Bifrost PRIVATE /W3 /fp:fast)
+  target_compile_options(Bifrost PRIVATE /W3 /fp:fast /arch:AVX2)
 else()
-  target_compile_options(Bifrost PRIVATE -Wall -ffast-math)
+  target_compile_options(Bifrost PRIVATE -Wall -ffast-math -mavx2 -mfma -ftree-vectorize)
 endif()
