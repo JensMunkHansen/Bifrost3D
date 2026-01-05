@@ -15,6 +15,7 @@
 #include <Bifrost/Math/RNG.h>
 #include <Bifrost/Math/Distribution1D.h>
 #include <Bifrost/Math/Distribution2D.h>
+#include <Bifrost/Math/Distributions.h>
 #include <Bifrost/Math/SIMDTrig.h>
 #include <Bifrost/Assets/MeshCreation.h>
 #include <Bifrost/Assets/Mesh.h>
@@ -253,6 +254,43 @@ void benchmark_distribution_operations() {
 }
 
 // ---------------------------------------------------------------------------
+// Direction sampling distributions (path tracing hot path)
+// ---------------------------------------------------------------------------
+void benchmark_direction_sampling() {
+    std::cout << "\n=== Direction Sampling (Path Tracing Hot Path) ===" << std::endl;
+    print_header();
+
+    RNG::LinearCongruential rng(12345);
+
+    BENCHMARK("GGX::sample (alpha=0.5)", {
+        Vector2f rand = rng.sample2f();
+        auto sample = Distributions::GGX::sample(0.5f, rand);
+        do_not_optimize(sample.direction);
+        do_not_optimize(sample.PDF);
+    });
+
+    BENCHMARK("Sphere::sample", {
+        Vector2f rand = rng.sample2f();
+        Vector3f dir = Distributions::Sphere::sample(rand);
+        do_not_optimize(dir);
+    });
+
+    BENCHMARK("HenyeyGreenstein::sample (g=0.5)", {
+        Vector2f rand = rng.sample2f();
+        auto sample = Distributions::HenyeyGreenstein::sample(0.5f, rand);
+        do_not_optimize(sample.direction);
+        do_not_optimize(sample.PDF);
+    });
+
+    BENCHMARK("HenyeyGreenstein::sample (g=0)", {
+        Vector2f rand = rng.sample2f();
+        auto sample = Distributions::HenyeyGreenstein::sample(0.0f, rand);
+        do_not_optimize(sample.direction);
+        do_not_optimize(sample.PDF);
+    });
+}
+
+// ---------------------------------------------------------------------------
 // Mesh operations
 // ---------------------------------------------------------------------------
 void benchmark_mesh_operations() {
@@ -349,6 +387,7 @@ int main(int argc, char* argv[]) {
     benchmark_rng_operations();
     benchmark_simd_trig_operations();
     benchmark_distribution_operations();
+    benchmark_direction_sampling();
     benchmark_mesh_operations();
     benchmark_scene_operations();
 

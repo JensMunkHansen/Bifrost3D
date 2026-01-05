@@ -11,6 +11,7 @@
 
 #include <Bifrost/Core/Defines.h>
 #include <Bifrost/Math/Constants.h>
+#include <Bifrost/Math/SIMDTrig.h>
 #include <Bifrost/Math/Vector.h>
 #include <Bifrost/Math/Utils.h>
 
@@ -49,8 +50,11 @@ __always_inline__ Sample sample(float alpha, Vector2f random_sample) {
 
     float r = sqrt(fmaxf(1.0f - cos_theta * cos_theta, 0.0f));
 
+    float sin_phi, cos_phi;
+    SIMD::sincosf(phi, &sin_phi, &cos_phi);
+
     Sample res;
-    res.direction = Vector3f(cos(phi) * r, sin(phi) * r, cos_theta);
+    res.direction = Vector3f(cos_phi * r, sin_phi * r, cos_theta);
     res.PDF = PDF(alpha, cos_theta); // We have to be able to inline this to reuse some temporaries.
     return res;
 }
@@ -69,7 +73,9 @@ __always_inline__ Vector3f sample(Vector2f random_sample) {
     float z = 1.0f - 2.0f * random_sample.x;
     float r = sqrt(fmaxf(0.0f, 1.0f - z * z));
     float phi = 2.0f * PI<float>() * random_sample.y;
-    return Vector3f(r * cos(phi), r * sin(phi), z);
+    float sin_phi, cos_phi;
+    SIMD::sincosf(phi, &sin_phi, &cos_phi);
+    return Vector3f(r * cos_phi, r * sin_phi, z);
 }
 
 } // NS Sphere
@@ -121,7 +127,9 @@ __always_inline__ Vector3f sample_direction(float g, Vector2f random_sample) {
 
     float sin_theta = sqrt(fmaxf(0.0f, 1.0f - pow2(cos_theta)));
     float phi = 2.0f * PI<float>() * random_sample.y;
-    return Vector3f(sin_theta * cos(phi), sin_theta * sin(phi), cos_theta);
+    float sin_phi, cos_phi;
+    SIMD::sincosf(phi, &sin_phi, &cos_phi);
+    return Vector3f(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
 }
 
 // Sample the distribution wrt [0,0,1] as wo.
