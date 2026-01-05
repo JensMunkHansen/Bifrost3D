@@ -288,6 +288,26 @@ void benchmark_direction_sampling() {
         do_not_optimize(sample.direction);
         do_not_optimize(sample.PDF);
     });
+
+    // Batched sampling benchmarks - L1 cache optimized
+    std::cout << "\n--- Batched (L1 Cache Optimized) ---" << std::endl;
+
+    constexpr size_t BATCH_SIZE = 64;  // Fits in L1: 64 * (3 arrays * 4 bytes) = 768 bytes
+    alignas(64) Vector2f rand_batch[BATCH_SIZE];
+    for (size_t i = 0; i < BATCH_SIZE; ++i)
+        rand_batch[i] = rng.sample2f();
+
+    Distributions::GGX::Sample ggx_results[BATCH_SIZE];
+    BENCHMARK_BATCH("GGX::sample_batch<64> (per sample)", {
+        Distributions::GGX::sample_batch<BATCH_SIZE>(0.5f, rand_batch, ggx_results);
+        do_not_optimize(ggx_results[0]);
+    }, BATCH_SIZE);
+
+    Vector3f sphere_results[BATCH_SIZE];
+    BENCHMARK_BATCH("Sphere::sample_batch<64> (per sample)", {
+        Distributions::Sphere::sample_batch<BATCH_SIZE>(rand_batch, sphere_results);
+        do_not_optimize(sphere_results[0]);
+    }, BATCH_SIZE);
 }
 
 // ---------------------------------------------------------------------------

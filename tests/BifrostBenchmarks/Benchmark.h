@@ -154,4 +154,16 @@ inline void print_header() {
         Bifrost::Benchmark::print_result(result); \
     }
 
+// For batched operations - divides time by batch_size to get per-element cost
+#define BENCHMARK_BATCH(name, code, batch_size) \
+    { \
+        Bifrost::Benchmark::Benchmark bench(name); \
+        auto result = bench.run([&]() { code; }); \
+        result.min_ns /= (batch_size); \
+        result.max_ns /= (batch_size); \
+        result.avg_ns /= (batch_size); \
+        result.median_ns /= (batch_size); \
+        Bifrost::Benchmark::print_result(result); \
+    }
+
 #endif // _BIFROST_BENCHMARK_H_

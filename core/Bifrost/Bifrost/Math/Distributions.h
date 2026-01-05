@@ -59,6 +59,38 @@ __always_inline__ Sample sample(float alpha, Vector2f random_sample) {
     return res;
 }
 
+// Batched GGX sampling for better L1 cache utilization.
+// Processes N samples with phi angles kept in L1, then batch sincos.
+template<size_t N>
+__always_inline__ void sample_batch(float alpha, const Vector2f* random_samples, Sample* results) {
+    // Phase 1: Compute all phi angles (contiguous, L1-friendly)
+    alignas(64) float phis[N];
+    alignas(64) float cos_thetas[N];
+    alignas(64) float rs[N];
+
+    const float two_pi = 2.0f * PI<float>();
+    const float alpha_sqrd = alpha * alpha;
+
+    for (size_t i = 0; i < N; ++i) {
+        phis[i] = random_samples[i].y * two_pi;
+
+        float tan_theta_sqrd = alpha_sqrd * random_samples[i].x / (1.0f - random_samples[i].x);
+        cos_thetas[i] = 1.0f / sqrt(1.0f + tan_theta_sqrd);
+        rs[i] = sqrt(fmaxf(1.0f - cos_thetas[i] * cos_thetas[i], 0.0f));
+    }
+
+    // Phase 2: Batch sincos - all phis are hot in L1
+    alignas(64) float sin_phis[N];
+    alignas(64) float cos_phis[N];
+    SIMD::sincos_batch(phis, sin_phis, cos_phis, N);
+
+    // Phase 3: Assemble results
+    for (size_t i = 0; i < N; ++i) {
+        results[i].direction = Vector3f(cos_phis[i] * rs[i], sin_phis[i] * rs[i], cos_thetas[i]);
+        results[i].PDF = PDF(alpha, cos_thetas[i]);
+    }
+}
+
 } // NS GGX
 
 
@@ -76,6 +108,30 @@ __always_inline__ Vector3f sample(Vector2f random_sample) {
     float sin_phi, cos_phi;
     SIMD::sincosf(phi, &sin_phi, &cos_phi);
     return Vector3f(r * cos_phi, r * sin_phi, z);
+}
+
+// Batched sphere sampling for better L1 cache utilization.
+template<size_t N>
+__always_inline__ void sample_batch(const Vector2f* random_samples, Vector3f* results) {
+    alignas(64) float phis[N];
+    alignas(64) float zs[N];
+    alignas(64) float rs[N];
+
+    const float two_pi = 2.0f * PI<float>();
+
+    for (size_t i = 0; i < N; ++i) {
+        zs[i] = 1.0f - 2.0f * random_samples[i].x;
+        rs[i] = sqrt(fmaxf(0.0f, 1.0f - zs[i] * zs[i]));
+        phis[i] = two_pi * random_samples[i].y;
+    }
+
+    alignas(64) float sin_phis[N];
+    alignas(64) float cos_phis[N];
+    SIMD::sincos_batch(phis, sin_phis, cos_phis, N);
+
+    for (size_t i = 0; i < N; ++i) {
+        results[i] = Vector3f(rs[i] * cos_phis[i], rs[i] * sin_phis[i], zs[i]);
+    }
 }
 
 } // NS Sphere
